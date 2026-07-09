@@ -8,9 +8,9 @@
         <module name="AvoidStarImport"/>
         <module name="RedundantImport"/>
         <module name="EqualsHashCode"/>
-        <module name="LineLength">
-            <property name="max" value="140"/>
-        </module>
+    </module>
+    <module name="LineLength">
+        <property name="max" value="140"/>
     </module>
     <module name="NewlineAtEndOfFile"/>
 </module>
