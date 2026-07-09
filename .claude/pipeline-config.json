@@ -1,0 +1,8 @@
+{
+  "jiraProjectKey": "DEMO",
+  "jiraUrl": "https://golinkup.atlassian.net",
+  "sonarProjectKey": "com.example:superpowers-test",
+  "slackChannel": "#dev-prs",
+  "mavenProfiles": [],
+  "notes": ""
+}

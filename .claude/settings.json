@@ -1,0 +1,72 @@
+{
+  "mcpServers": {
+    "atlassian": {
+      "command": "docker",
+      "args": [
+        "run", "-i", "--rm",
+        "-e", "JIRA_URL",
+        "-e", "JIRA_EMAIL",
+        "-e", "JIRA_API_TOKEN",
+        "ghcr.io/anthropics/claude-code-atlassian-mcp:latest"
+      ],
+      "env": {
+        "JIRA_URL": "${JIRA_URL}",
+        "JIRA_EMAIL": "${JIRA_EMAIL}",
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
+      }
+    },
+    "sonarqube": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/sonarqube-mcp-server"],
+      "env": {
+        "SONARQUBE_URL": "${SONARQUBE_URL}",
+        "SONARQUBE_TOKEN": "${SONARQUBE_TOKEN}"
+      }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/load-sprint-context.sh",
+        "blocking": false
+      }
+    ],
+    "PreToolUse": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/block-dangerous.sh",
+        "matcher": "Bash",
+        "blocking": true
+      }
+    ],
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/enforce-quality-gates.sh",
+        "blocking": true
+      }
+    ],
+    "Notification": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/notify-slack.sh",
+        "blocking": false
+      }
+    ],
+    "PreCompact": [
+      {
+        "type": "command",
+        "command": "bash .claude/hooks/save-state.sh",
+        "blocking": false
+      }
+    ]
+  }
+}
