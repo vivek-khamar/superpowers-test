@@ -1,0 +1,12 @@
+<FindBugsFilter>
+    <Match>
+        <Class name="~.*\.dto\..*"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <!-- Constructor-injected @ConfigurationProperties beans are Spring-managed
+             config holders, not externally-mutable attacker-controlled state. -->
+        <Class name="com.superpowers.test.auth.ratelimit.SignupRateLimitFilter"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+</FindBugsFilter>
