@@ -3,6 +3,7 @@ package com.superpowers.test.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
@@ -56,5 +57,39 @@ class UserRepositoryTest {
 
         assertThat(saved.getFailedAttempts()).isZero();
         assertThat(saved.getLockedUntil()).isNull();
+    }
+
+    @Test
+    void defaultsStatusToRegisteredAndOnboardingFieldsToNull() {
+        User saved = userRepository.save(new User("onboarding-default@example.com", "hash", "Fresh User"));
+
+        assertThat(saved.getStatus()).isEqualTo(UserStatus.REGISTERED);
+        assertThat(saved.getJobPreference()).isNull();
+        assertThat(saved.getPreferredJobFunctions()).isEmpty();
+        assertThat(saved.getPreferredLocations()).isEmpty();
+        assertThat(saved.getProfilePictureUrl()).isNull();
+        assertThat(saved.getResumeUrl()).isNull();
+    }
+
+    @Test
+    void persistsOnboardingFieldsIncludingListCollections() {
+        User user = new User("onboarding-complete@example.com", "hash", "Onboarded User");
+        user.setJobPreference(JobPreference.FULL_TIME);
+        user.setPreferredJobFunctions(List.of("Backend Engineer", "Solution Architect"));
+        user.setPreferredLocations(List.of("Mumbai", "Bangalore"));
+        user.setProfilePictureUrl("profile-pictures/1/abc.png");
+        user.setResumeUrl("resumes/1/abc.pdf");
+        user.setStatus(UserStatus.ONBOARDING_COMPLETED);
+
+        User saved = userRepository.saveAndFlush(user);
+        userRepository.flush();
+        User reloaded = userRepository.findById(saved.getId()).orElseThrow();
+
+        assertThat(reloaded.getJobPreference()).isEqualTo(JobPreference.FULL_TIME);
+        assertThat(reloaded.getPreferredJobFunctions()).containsExactlyInAnyOrder("Backend Engineer", "Solution Architect");
+        assertThat(reloaded.getPreferredLocations()).containsExactlyInAnyOrder("Mumbai", "Bangalore");
+        assertThat(reloaded.getProfilePictureUrl()).isEqualTo("profile-pictures/1/abc.png");
+        assertThat(reloaded.getResumeUrl()).isEqualTo("resumes/1/abc.pdf");
+        assertThat(reloaded.getStatus()).isEqualTo(UserStatus.ONBOARDING_COMPLETED);
     }
 }
