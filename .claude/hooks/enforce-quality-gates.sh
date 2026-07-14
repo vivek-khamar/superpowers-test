@@ -43,8 +43,24 @@ if [ -n "$CHANGED_JAVA_FILES" ]; then
   SPOTBUGS_CLASSES=$(echo "$CHANGED_JAVA_FILES" | sed -E 's#^src/(main|test)/java/##; s#\.java$##; s#/#.#g' | paste -sd, -)
   run_gate "Checkstyle (changed files)" ./mvnw checkstyle:check -q "-Dcheckstyle.includes=$CHECKSTYLE_INCLUDES"
   run_gate "SpotBugs (changed files)"   ./mvnw spotbugs:check -q "-Dspotbugs.onlyAnalyze=$SPOTBUGS_CLASSES"
+
+  # ── SonarQube quality gate ──────────────────────────────────────────────────
+  # The project key is always taken from pipeline-config.json (the pipeline's
+  # source of truth) and passed explicitly, so this can never silently drift
+  # onto pom.xml's default groupId:artifactId like it did before.
+  SONAR_PROJECT_KEY=$(python3 -c "import json; print(json.load(open('.claude/pipeline-config.json')).get('sonarProjectKey',''))" 2>/dev/null)
+  if [ -n "$SONAR_PROJECT_KEY" ] && [ -n "${SONARQUBE_URL:-}" ] && [ -n "${SONARQUBE_TOKEN:-}" ]; then
+    run_gate "SonarQube Quality Gate" ./mvnw verify sonar:sonar -q \
+      "-Dsonar.host.url=$SONARQUBE_URL" \
+      "-Dsonar.token=$SONARQUBE_TOKEN" \
+      "-Dsonar.projectKey=$SONAR_PROJECT_KEY" \
+      -Dsonar.qualitygate.wait=true \
+      -Dsonar.qualitygate.timeout=120
+  else
+    echo "[Gate] SonarQube not configured (missing sonarProjectKey/SONARQUBE_URL/SONARQUBE_TOKEN) — skipping" >&2
+  fi
 else
-  echo "[Gate] No changed .java files vs base branch — skipping Checkstyle/SpotBugs" >&2
+  echo "[Gate] No changed .java files vs base branch — skipping Checkstyle/SpotBugs/SonarQube" >&2
 fi
 
 if [ "$PASSED" = true ]; then
