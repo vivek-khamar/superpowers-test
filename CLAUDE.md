@@ -16,6 +16,15 @@ Running without a human in the loop:
   from .claude/sprint-context.md — do NOT pause for human sign-off
 - Auto-approve the plan if every task maps to a specific criterion
 - Do NOT pause for human input at any step — proceed through all stages
+- This session runs one-shot (`claude --print`): once your turn ends, the
+  process exits and nothing resumes it on its own. Any subagent dispatched
+  in the background is abandoned mid-work when that happens — its result
+  never reaches you and the ticket silently stalls. Dispatch every subagent
+  (implementers, reviewers, explorers) in the foreground and wait for it to
+  finish before ending your turn. Only end your turn once the entire plan
+  is complete (all tasks committed, PR opened) or a genuine
+  AWAITING_HUMAN_APPROVAL checkpoint is hit — never on "I'll continue in
+  the background" or similar.
 - Exception: if a skill's process would genuinely require human judgment
   (acceptance criteria are incomplete/ambiguous, or a design decision has
   multiple valid approaches with real tradeoffs), you cannot literally wait
@@ -27,7 +36,7 @@ Running without a human in the loop:
 - After PR is created:
   a. Use Atlassian MCP to transition the Jira ticket to "In Review"
   b. Use Atlassian MCP to add a comment with the PR URL
-  c. Post the PR URL to Slack #dev-prs
+  c. Use Slack MCP to post the PR URL to #dev-prs
 
 ---
 
