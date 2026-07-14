@@ -7,10 +7,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "users")
 public class User {
+
+    private static final String DEFAULT_ROLE = "USER";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +38,19 @@ public class User {
     @Column(name = "locked_until")
     private Instant lockedUntil;
 
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
     protected User() {
+    }
+
+    public User(String email, String passwordHash, String name) {
+        this(email, passwordHash, name, DEFAULT_ROLE);
     }
 
     public User(String email, String passwordHash, String name, String role) {
@@ -80,5 +96,13 @@ public class User {
 
     public void setLockedUntil(Instant lockedUntil) {
         this.lockedUntil = lockedUntil;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getUpdatedAt() {
+        return updatedAt;
     }
 }

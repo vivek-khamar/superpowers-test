@@ -28,6 +28,8 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<sonar.projectKey>com.example:superpowers-test</sonar.projectKey>
+		<sonar.projectName>superpowers-test</sonar.projectName>
 	</properties>
 	<dependencies>
 		<dependency>
