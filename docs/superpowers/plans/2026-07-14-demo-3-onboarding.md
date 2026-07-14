@@ -6,7 +6,7 @@
 
 **Architecture:** `OnboardingController` → `OnboardingService` (`@Transactional`) → `UserRepository` (JPA) + `FileStorageService` → `S3FileStorageService` (AWS SDK v2). A new `JwtAuthenticationFilter` (there is currently no code that validates JWTs on incoming requests — only issuance exists) populates `SecurityContext` from the `Authorization` header or `jwt` cookie so `.anyRequest().authenticated()` actually has something to check against.
 
-**Tech Stack:** Spring Boot 4.1 (Web, Security, Data JPA, Validation), Flyway, PostgreSQL, `io.jsonwebtoken` (jjwt) — already present. New: `software.amazon.awssdk:s3` (main), `org.testcontainers:localstack` (test).
+**Tech Stack:** Spring Boot 4.1 (Web, Security, Data JPA, Validation), Flyway, PostgreSQL, `io.jsonwebtoken` (jjwt) — already present. New: `software.amazon.awssdk:s3` (main), `org.testcontainers:testcontainers-localstack` (test).
 
 ## Global Constraints
 
@@ -48,7 +48,7 @@ Add these two `<dependency>` blocks — the S3 one right after the existing `jjw
 ```xml
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>localstack</artifactId>
+			<artifactId>testcontainers-localstack</artifactId>
 			<scope>test</scope>
 		</dependency>
 ```
@@ -760,7 +760,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
@@ -773,7 +773,7 @@ class S3FileStorageServiceIntegrationTest {
 
     @Container
     static LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:3.0"))
-            .withServices(LocalStackContainer.Service.S3);
+            .withServices("s3");
 
     @Autowired
     private FileStorageService fileStorageService;
@@ -787,9 +787,7 @@ class S3FileStorageServiceIntegrationTest {
     static void awsProperties(DynamicPropertyRegistry registry) {
         registry.add("app.aws.s3.bucket-name", () -> BUCKET_NAME);
         registry.add("app.aws.s3.region", () -> localstack.getRegion());
-        registry.add(
-                "app.aws.s3.endpoint-override",
-                () -> localstack.getEndpointOverride(LocalStackContainer.Service.S3).toString());
+        registry.add("app.aws.s3.endpoint-override", () -> localstack.getEndpoint().toString());
     }
 
     @Test
@@ -1485,7 +1483,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -1510,7 +1508,7 @@ class OnboardingControllerIntegrationTest {
 
     @Container
     static LocalStackContainer localstack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:3.0"))
-            .withServices(LocalStackContainer.Service.S3);
+            .withServices("s3");
 
     @BeforeAll
     static void createBucket() throws Exception {
@@ -1521,9 +1519,7 @@ class OnboardingControllerIntegrationTest {
     static void awsProperties(DynamicPropertyRegistry registry) {
         registry.add("app.aws.s3.bucket-name", () -> BUCKET_NAME);
         registry.add("app.aws.s3.region", () -> localstack.getRegion());
-        registry.add(
-                "app.aws.s3.endpoint-override",
-                () -> localstack.getEndpointOverride(LocalStackContainer.Service.S3).toString());
+        registry.add("app.aws.s3.endpoint-override", () -> localstack.getEndpoint().toString());
     }
 
     @Autowired
