@@ -33,6 +33,25 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(AuthenticationFailedException.class)
+    public ProblemDetail handleAuthFailed(AuthenticationFailedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, ex.getMessage());
+        problem.setTitle("Authentication Failed");
+        problem.setProperty("errorCode", "AUTH_FAILED");
+        problem.setProperty("message", ex.getMessage());
+        return problem;
+    }
+
+    @ExceptionHandler(AccountLockedException.class)
+    public ProblemDetail handleAccountLocked(AccountLockedException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.LOCKED, ex.getMessage());
+        problem.setTitle("Account Locked");
+        problem.setProperty("errorCode", "ACCOUNT_LOCKED");
+        problem.setProperty("message", ex.getMessage());
+        problem.setProperty("lockedUntil", ex.getLockedUntil().toString());
+        return problem;
+    }
+
     public record FieldViolation(String field, String message) {
     }
 }

@@ -14,6 +14,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 @Table(name = "users")
 public class User {
 
+    private static final String DEFAULT_ROLE = "USER";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,6 +29,15 @@ public class User {
     @Column(nullable = false)
     private String name;
 
+    @Column(nullable = false)
+    private String role;
+
+    @Column(name = "failed_attempts", nullable = false)
+    private int failedAttempts;
+
+    @Column(name = "locked_until")
+    private Instant lockedUntil;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -39,9 +50,16 @@ public class User {
     }
 
     public User(String email, String passwordHash, String name) {
+        this(email, passwordHash, name, DEFAULT_ROLE);
+    }
+
+    public User(String email, String passwordHash, String name, String role) {
         this.email = email;
         this.passwordHash = passwordHash;
         this.name = name;
+        this.role = role;
+        this.failedAttempts = 0;
+        this.lockedUntil = null;
     }
 
     public Long getId() {
@@ -58,6 +76,26 @@ public class User {
 
     public String getName() {
         return name;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public int getFailedAttempts() {
+        return failedAttempts;
+    }
+
+    public void setFailedAttempts(int failedAttempts) {
+        this.failedAttempts = failedAttempts;
+    }
+
+    public Instant getLockedUntil() {
+        return lockedUntil;
+    }
+
+    public void setLockedUntil(Instant lockedUntil) {
+        this.lockedUntil = lockedUntil;
     }
 
     public Instant getCreatedAt() {
