@@ -10,6 +10,9 @@ public class RateLimitProperties {
     private int maxRequests = 10;
     private int windowSeconds = 60;
 
+    @SuppressWarnings("java:S1075")
+    private String path = "/api/v1/auth/signup";
+
     public int getMaxRequests() {
         return maxRequests;
     }
@@ -24,5 +27,13 @@ public class RateLimitProperties {
 
     public void setWindowSeconds(int windowSeconds) {
         this.windowSeconds = windowSeconds;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 }

@@ -18,7 +18,7 @@ public record SignupRequest(
 
         @NotBlank(message = "password is required")
         @Pattern(
-                regexp = "^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$",
+                regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9]).{8,}$",
                 message = "password must be at least 8 characters and include 1 uppercase letter, "
                         + "1 number, and 1 special character")
         String password) {

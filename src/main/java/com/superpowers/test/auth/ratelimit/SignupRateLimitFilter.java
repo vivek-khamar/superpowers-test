@@ -17,8 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class SignupRateLimitFilter extends OncePerRequestFilter implements Ordered {
 
-    private static final String SIGNUP_PATH = "/api/v1/auth/signup";
-
     private final RateLimitProperties properties;
     private final Clock clock;
     private final ConcurrentHashMap<String, Window> windows = new ConcurrentHashMap<>();
@@ -41,7 +39,7 @@ public class SignupRateLimitFilter extends OncePerRequestFilter implements Order
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        if (!SIGNUP_PATH.equals(request.getRequestURI()) || !"POST".equalsIgnoreCase(request.getMethod())) {
+        if (!properties.getPath().equals(request.getRequestURI()) || !"POST".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
