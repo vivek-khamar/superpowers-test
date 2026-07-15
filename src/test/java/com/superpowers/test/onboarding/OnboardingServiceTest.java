@@ -87,8 +87,10 @@ class OnboardingServiceTest {
     void rejectsWrongResumeFormatWithoutTouchingStorage() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existingUser()));
         MultipartFile badResume = new MockMultipartFile("resume", "resume.txt", "text/plain", "content".getBytes());
+        OnboardingRequest request = validRequest();
+        MultipartFile validPicture = picture();
 
-        assertThatThrownBy(() -> onboardingService.completeOnboarding(USER_ID, validRequest(), picture(), badResume))
+        assertThatThrownBy(() -> onboardingService.completeOnboarding(USER_ID, request, validPicture, badResume))
                 .isInstanceOf(InvalidFileException.class);
 
         verify(fileStorageService, never()).upload(any(), any());
@@ -101,8 +103,10 @@ class OnboardingServiceTest {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existingUser()));
         byte[] oversized = new byte[5 * 1024 * 1024 + 1];
         MultipartFile bigResume = new MockMultipartFile("resume", "resume.pdf", "application/pdf", oversized);
+        OnboardingRequest request = validRequest();
+        MultipartFile validPicture = picture();
 
-        assertThatThrownBy(() -> onboardingService.completeOnboarding(USER_ID, validRequest(), picture(), bigResume))
+        assertThatThrownBy(() -> onboardingService.completeOnboarding(USER_ID, request, validPicture, bigResume))
                 .isInstanceOf(InvalidFileException.class);
 
         verify(fileStorageService, never()).upload(any(), any());
@@ -114,9 +118,10 @@ class OnboardingServiceTest {
     void rejectsWrongProfilePictureFormatWithoutTouchingStorage() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existingUser()));
         MultipartFile badPicture = new MockMultipartFile("profilePicture", "photo.gif", "image/gif", "bytes".getBytes());
+        OnboardingRequest request = validRequest();
+        MultipartFile validResume = resume("content".getBytes());
 
-        assertThatThrownBy(() ->
-                        onboardingService.completeOnboarding(USER_ID, validRequest(), badPicture, resume("content".getBytes())))
+        assertThatThrownBy(() -> onboardingService.completeOnboarding(USER_ID, request, badPicture, validResume))
                 .isInstanceOf(InvalidFileException.class);
 
         verify(fileStorageService, never()).upload(any(), any());
@@ -128,9 +133,11 @@ class OnboardingServiceTest {
     void propagatesStorageFailureWithoutPersistingAnything() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(existingUser()));
         when(fileStorageService.upload(any(), any())).thenThrow(new FileStorageException("boom", new RuntimeException()));
+        OnboardingRequest request = validRequest();
+        MultipartFile validPicture = picture();
+        MultipartFile validResume = resume("content".getBytes());
 
-        assertThatThrownBy(() ->
-                        onboardingService.completeOnboarding(USER_ID, validRequest(), picture(), resume("content".getBytes())))
+        assertThatThrownBy(() -> onboardingService.completeOnboarding(USER_ID, request, validPicture, validResume))
                 .isInstanceOf(FileStorageException.class);
 
         verify(userRepository, never()).save(any());

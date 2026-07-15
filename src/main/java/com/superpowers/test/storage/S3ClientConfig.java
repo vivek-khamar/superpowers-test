@@ -22,7 +22,7 @@ public class S3ClientConfig {
                     .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
                     .forcePathStyle(true);
         } else {
-            builder.credentialsProvider(DefaultCredentialsProvider.create());
+            builder.credentialsProvider(DefaultCredentialsProvider.builder().build());
         }
 
         return builder.build();
