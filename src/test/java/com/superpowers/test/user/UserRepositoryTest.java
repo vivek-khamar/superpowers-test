@@ -82,7 +82,6 @@ class UserRepositoryTest {
         user.setStatus(UserStatus.ONBOARDING_COMPLETED);
 
         User saved = userRepository.saveAndFlush(user);
-        userRepository.flush();
         User reloaded = userRepository.findById(saved.getId()).orElseThrow();
 
         assertThat(reloaded.getJobPreference()).isEqualTo(JobPreference.FULL_TIME);

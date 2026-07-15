@@ -152,7 +152,7 @@ public class User {
     }
 
     public void setPreferredJobFunctions(List<String> preferredJobFunctions) {
-        this.preferredJobFunctions = new ArrayList<>(preferredJobFunctions);
+        this.preferredJobFunctions = copyOf(preferredJobFunctions);
     }
 
     public List<String> getPreferredLocations() {
@@ -160,7 +160,11 @@ public class User {
     }
 
     public void setPreferredLocations(List<String> preferredLocations) {
-        this.preferredLocations = new ArrayList<>(preferredLocations);
+        this.preferredLocations = copyOf(preferredLocations);
+    }
+
+    private static List<String> copyOf(List<String> values) {
+        return new ArrayList<>(values);
     }
 
     public String getProfilePictureUrl() {
