@@ -19,4 +19,9 @@ public record OnboardingRequest(
 
         @NotNull(message = "preferredLocations is required")
         List<String> preferredLocations) {
+
+    public OnboardingRequest {
+        preferredJobFunctions = preferredJobFunctions == null ? null : List.copyOf(preferredJobFunctions);
+        preferredLocations = preferredLocations == null ? null : List.copyOf(preferredLocations);
+    }
 }
