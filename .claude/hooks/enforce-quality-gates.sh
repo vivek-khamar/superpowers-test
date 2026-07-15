@@ -23,8 +23,13 @@ fi
 
 # ── Find a base ref to diff against, so style/static-analysis gates only ──────
 # cover files this ticket actually touched, not pre-existing repo-wide debt.
+# Prefer the project's configured baseBranch (the same branch PRs target) over
+# guessing, so this can't disagree with what the PR actually diffs against.
+CONFIGURED_BASE_BRANCH=$(python3 -c "import json; print(json.load(open('.claude/pipeline-config.json')).get('baseBranch',''))" 2>/dev/null)
+
 BASE_REF=""
-for CANDIDATE in origin/develop origin/main origin/master develop main master; do
+for CANDIDATE in "origin/$CONFIGURED_BASE_BRANCH" "$CONFIGURED_BASE_BRANCH" origin/develop origin/main origin/master develop main master; do
+  [ -z "$CANDIDATE" ] || [ "$CANDIDATE" = "origin/" ] && continue
   if git rev-parse --verify -q "$CANDIDATE" >/dev/null 2>&1; then
     MERGE_BASE=$(git merge-base HEAD "$CANDIDATE" 2>/dev/null) && [ -n "$MERGE_BASE" ] && { BASE_REF="$MERGE_BASE"; break; }
   fi
