@@ -1,12 +1,21 @@
 package com.superpowers.test.user;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -37,6 +46,30 @@ public class User {
 
     @Column(name = "locked_until")
     private Instant lockedUntil;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "job_preference")
+    private JobPreference jobPreference;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_job_functions", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "value")
+    private List<String> preferredJobFunctions = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_preferred_locations", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "value")
+    private List<String> preferredLocations = new ArrayList<>();
+
+    @Column(name = "profile_picture_url")
+    private String profilePictureUrl;
+
+    @Column(name = "resume_url")
+    private String resumeUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.REGISTERED;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -78,6 +111,10 @@ public class User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getRole() {
         return role;
     }
@@ -104,5 +141,57 @@ public class User {
 
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public JobPreference getJobPreference() {
+        return jobPreference;
+    }
+
+    public void setJobPreference(JobPreference jobPreference) {
+        this.jobPreference = jobPreference;
+    }
+
+    public List<String> getPreferredJobFunctions() {
+        return Collections.unmodifiableList(preferredJobFunctions);
+    }
+
+    public void setPreferredJobFunctions(List<String> preferredJobFunctions) {
+        this.preferredJobFunctions = copyOf(preferredJobFunctions);
+    }
+
+    public List<String> getPreferredLocations() {
+        return Collections.unmodifiableList(preferredLocations);
+    }
+
+    public void setPreferredLocations(List<String> preferredLocations) {
+        this.preferredLocations = copyOf(preferredLocations);
+    }
+
+    private static List<String> copyOf(List<String> values) {
+        return new ArrayList<>(values);
+    }
+
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public String getResumeUrl() {
+        return resumeUrl;
+    }
+
+    public void setResumeUrl(String resumeUrl) {
+        this.resumeUrl = resumeUrl;
+    }
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 }

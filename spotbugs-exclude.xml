@@ -4,6 +4,15 @@
         <Bug pattern="EI_EXPOSE_REP"/>
     </Match>
     <Match>
+        <!-- Records' canonical constructors are flagged even when a compact
+             constructor defensively copies (e.g. OnboardingRequest's List
+             fields via List.copyOf) — SpotBugs doesn't trace that reassignment.
+             DTOs are validated data carriers at the request boundary, not
+             externally-mutable attacker-controlled state. -->
+        <Class name="~.*\.dto\..*"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
         <!-- Constructor-injected @ConfigurationProperties beans are Spring-managed
              config holders, not externally-mutable attacker-controlled state. -->
         <Class name="com.superpowers.test.auth.ratelimit.SignupRateLimitFilter"/>
@@ -13,6 +22,13 @@
         <!-- Constructor-injected @ConfigurationProperties beans are Spring-managed
              config holders, not externally-mutable attacker-controlled state. -->
         <Class name="com.superpowers.test.auth.JwtService"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <!-- Constructor-injected Spring-managed singleton beans (an AWS SDK client
+             and a @ConfigurationProperties holder), not externally-mutable
+             attacker-controlled state. -->
+        <Class name="com.superpowers.test.storage.S3FileStorageService"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
 </FindBugsFilter>
