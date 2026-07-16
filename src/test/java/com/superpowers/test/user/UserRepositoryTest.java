@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.postgresql.PostgreSQLContainer;
@@ -90,5 +93,17 @@ class UserRepositoryTest {
         assertThat(reloaded.getProfilePictureUrl()).isEqualTo("profile-pictures/1/abc.png");
         assertThat(reloaded.getResumeUrl()).isEqualTo("resumes/1/abc.pdf");
         assertThat(reloaded.getStatus()).isEqualTo(UserStatus.ONBOARDING_COMPLETED);
+    }
+
+    @Test
+    void supportsSpecificationBasedQueriesWithPagination() {
+        userRepository.save(new User("spec-a@example.com", "hash", "Spec User A", "ADMIN"));
+        userRepository.save(new User("spec-b@example.com", "hash", "Spec User B", "USER"));
+
+        Specification<User> adminOnly = (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("role"), "ADMIN");
+        Page<User> result = userRepository.findAll(adminOnly, PageRequest.of(0, 10));
+
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0).getEmail()).isEqualTo("spec-a@example.com");
     }
 }
