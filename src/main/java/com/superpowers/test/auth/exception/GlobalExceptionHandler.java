@@ -10,6 +10,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,6 +30,16 @@ public class GlobalExceptionHandler {
         problem.setProperty(ERROR_CODE_PROPERTY, "VALIDATION_FAILED");
         problem.setProperty(MESSAGE_PROPERTY, "Request validation failed.");
         problem.setProperty("violations", violations);
+        return problem;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
+        String detail = "Query parameter '" + ex.getName() + "' has an invalid value.";
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, detail);
+        problem.setTitle("Invalid Query Parameter");
+        problem.setProperty(ERROR_CODE_PROPERTY, "INVALID_QUERY_PARAMETER");
+        problem.setProperty(MESSAGE_PROPERTY, detail);
         return problem;
     }
 
