@@ -3,7 +3,7 @@
   "jiraUrl": "https://golinkup.atlassian.net",
   "sonarProjectKey": "com.example:superpowers-test",
   "slackChannel": "#dev-prs",
-  "baseBranch": "main",
+  "baseBranch": "develop",
   "mavenProfiles": [],
   "notes": ""
 }

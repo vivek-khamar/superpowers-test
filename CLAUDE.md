@@ -43,7 +43,7 @@ Running without a human in the loop:
 ## 2. Branch Naming
 - Feature : `feat/DEMO-{number}-{slug}`
 - Bug fix  : `fix/DEMO-{number}-{slug}`
-- Branch off `main` and never commit directly to it
+- Branch off `develop` and never commit directly to it
 
 ---
 
@@ -96,7 +96,7 @@ First line ≤ 72 chars. Always include Jira key.
 ---
 
 ## 8. PR Rules
-- Base branch: `main` — always open the PR against this branch, not
+- Base branch: `develop` — always open the PR against this branch, not
   whatever GitHub's UI defaults to
 - Title: `[DEMO-{number}] {description}`
 - Body must include: summary, Jira link, acceptance criteria checklist,
